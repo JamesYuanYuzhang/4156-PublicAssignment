@@ -32,7 +32,10 @@ public class Message {
       this.message = "The game has been over.";
     } else if (402 == code) {
       this.message = "The game is draw.";
+    } else {
+      this.message = "Unknown error.";
     }
+    
   }
   
   public boolean getMoveValidity() {

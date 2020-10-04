@@ -44,8 +44,17 @@ public class GameBoard {
     return this.turn;
   }
   
+  /**
+   * Return the current boardState.
+   * @return BoardState
+   */
   public char[][] getBoardState() {
-    return this.boardState;
+    int n = this.boardState.length;
+    char[][] result = new char[n][n];
+    for (int i = 0; i < n; i++) {
+      result[i] = this.boardState[i].clone();
+    }
+    return result;
   }
   
   public int  getWinner() {
@@ -72,8 +81,15 @@ public class GameBoard {
     this.turn = turn;
   }
   
+  /**
+   * Set the boardState.
+   * @param boardState the current state of the board.
+   */
   public void setBoardState(char[][] boardState) {
-    this.boardState = boardState;
+    int n = this.boardState.length;
+    for (int i = 0; i < n; i++) {
+      this.boardState[i] = boardState[i].clone();
+    }
   }
   
   public void setWinner(int winner) {
@@ -82,6 +98,19 @@ public class GameBoard {
   
   public void setIsDraw(boolean isDraw) {
     this.isDraw = isDraw;
+  }
+  
+  /**
+   * Play 1 start the game and set his type.
+   * @param type The type of player 1.
+   * @return A boolean which determined whether the type is valid.
+   */
+  public boolean startGame(char type) {
+    if ('X' == type || 'O' == type) {
+      this.setPlayer1(new Player(type, 1));
+      return true;
+    }
+    return false;
   }
   
   /**
@@ -112,8 +141,8 @@ public class GameBoard {
    * @param move Describe which player wants to move to which position.
    * @return The code for message.
    */
-  private int tryMove(Move move) {
-    if (null == this || null == this.getPlayer1() || null == this.getPlayer2()) {
+  public int tryMove(Move move) {
+    if (null == this.getPlayer1() || null == this.getPlayer2()) {
       return 301;
     }
     if (0 !=  this.getWinner()) {
@@ -127,14 +156,15 @@ public class GameBoard {
     if (i >= 3 || i < 0 || j >= 3 || j < 0) {
       return 201;
     }
-    if (this.getIsDraw() || '\u0000' != this.getBoardState()[i][j]) {
+    if ('\u0000' != this.getBoardState()[i][j]) {
       return 202;
     }
     if (move.getPlayer().getId() != this.getTurn()) {
       return 302;
     }
-
-    this.getBoardState()[i][j] = move.getPlayer().getType();
+    char[][] boardState = this.getBoardState();
+    boardState[i][j] = move.getPlayer().getType();
+    this.setBoardState(boardState);
     this.setTurn((this.getTurn() % 2) + 1);
     updateState();
     return 100;
@@ -143,7 +173,7 @@ public class GameBoard {
   /**
    * Determined if one of the player has won this game.
    */
-  private void updateState() {
+  public void updateState() {
     final char[][] boardState = this.getBoardState();
     for (int i = 0; i < 3; i++) {
       if (boardState[0][i] == boardState[1][i] && boardState[0][i] == boardState[2][i]) {
@@ -182,7 +212,7 @@ public class GameBoard {
    * Count how many positions have been used.
    * @return The counter of used position.
    */
-  private int checkUsedPosition() {
+  public int checkUsedPosition() {
     int count = 0;
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {

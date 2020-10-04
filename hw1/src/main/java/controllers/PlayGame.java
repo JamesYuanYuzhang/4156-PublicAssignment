@@ -4,29 +4,32 @@ import com.google.gson.Gson;
 import io.javalin.Javalin;
 import java.io.IOException;
 import java.util.Queue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import models.GameBoard;
 import models.Message;
-import models.Move;
-import models.Player;
 import org.eclipse.jetty.websocket.api.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-class PlayGame {
+public class PlayGame {
 
   private static final int PORT_NUMBER = 8080;
 
   private static Javalin app;
   
-  //The gameBoard for current game.
+  // The gameBoard for current game.
   private static GameBoard gameBoard;
   
-  //Transform object to JSON file and vice versa.
+  // Transform object to JSON file and vice versa.
   private static Gson gson = new Gson();
   
-  //The logger to record exception information.
+  // The logger to record exception information.
   private static final Logger logger = LoggerFactory.getLogger(PlayGame.class);
+  
+  // The regular expression pattern for extracting the information of move request.
+  private static Pattern p = Pattern.compile("[-]*\\d+");
 
   /** Main method of the application.
    * @param args Command line arguments
@@ -35,10 +38,10 @@ class PlayGame {
     app = Javalin.create(config -> {
       config.addStaticFiles("/public");
     }).start(PORT_NUMBER);
-
-    // Test Echo Server
-    app.post("/echo", ctx -> {
-      ctx.result(ctx.body());
+    
+    // test whether server is online.
+    app.get("/", ctx -> {
+      ctx.result("server is online.");
     });
     
     // New game
@@ -50,7 +53,15 @@ class PlayGame {
     //Start game
     app.post("/startgame", ctx -> {
       char type = (ctx.body().charAt(5));
-      gameBoard.setPlayer1(new Player(type, 1));
+      if (gameBoard.startGame(type)) {
+        ctx.result(gson.toJson(gameBoard));
+      } else {
+        ctx.result("This type is invalid.");
+      }
+    });
+    
+    //Show current status of gameBoard
+    app.get("/boardstatus", ctx -> {
       ctx.result(gson.toJson(gameBoard));
     });
     
@@ -63,9 +74,16 @@ class PlayGame {
     
     //Player ask to move.
     app.post("/move/:playerId", ctx -> {
-      int i = Character.getNumericValue(ctx.body().charAt(2));
-      int j = Character.getNumericValue(ctx.body().charAt(6));
-      int playerId = Integer.valueOf(ctx.pathParam("playerId"));
+      int i = -1;
+      int j = -1;
+      Matcher matcher = p.matcher(ctx.body());
+      if (matcher.find()) {
+        i = Integer.parseInt(matcher.group());
+      }
+      if (matcher.find()) {
+        j = Integer.parseInt(matcher.group());
+      }
+      int playerId = Integer.parseInt(ctx.pathParam("playerId"));
       Message message = gameBoard.move(i, j, playerId);
       ctx.result(gson.toJson(message));
       sendGameBoardToAllPlayers(gson.toJson(gameBoard));
