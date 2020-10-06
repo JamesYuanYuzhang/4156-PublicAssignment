@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -48,8 +49,10 @@ public class GameTest {
   /**
   * This is a test case to evaluate the newGame endpoint.
   */
+  @Order(1)
   @Test
   public void newGameTest() {
+    System.out.println(1);
     // Create HTTP request and get response
     HttpResponse<String> response = Unirest.get("http://localhost:8080/newgame").asString();
     int restStatus = response.getStatus();
@@ -62,9 +65,10 @@ public class GameTest {
   /**
   * This is a test case to evaluate the startGame endpoint.
   */
+  @Order(2)
   @Test
   public void startGameTest() {
-      
+    System.out.println(2);
     // Create a POST request to startGame endpoint and get the body
     // Remember to use asString() only once for an endpoint call. 
     // Every time you call asString(), a new request will be sent to the endpoint. 

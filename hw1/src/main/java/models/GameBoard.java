@@ -16,15 +16,20 @@ public class GameBoard {
 
   private boolean isDraw;
   
-  /**
-   * The constructor.
-   */
+
   public GameBoard() {
+    
+  }
+  
+  /**
+   * Initialize the gameBoard.
+   */
+  public void init() {
     this.gameStarted = false;
     this.turn = 1;
-    boardState = new char[3][3];
-    winner = 0;
-    isDraw = false;
+    this.boardState = new char[3][3];
+    this.winner = 0;
+    this.isDraw = false;
   }
   
   
@@ -86,6 +91,7 @@ public class GameBoard {
    * @param boardState the current state of the board.
    */
   public void setBoardState(char[][] boardState) {
+    this.boardState = new char[3][3];
     int n = this.boardState.length;
     for (int i = 0; i < n; i++) {
       this.boardState[i] = boardState[i].clone();
@@ -174,6 +180,9 @@ public class GameBoard {
    * Determined if one of the player has won this game.
    */
   public void updateState() {
+    if (null == this.p1 || null == this.p2) {
+      return;
+    }
     final char[][] boardState = this.getBoardState();
     for (int i = 0; i < 3; i++) {
       if (boardState[0][i] == boardState[1][i] && boardState[0][i] == boardState[2][i]) {

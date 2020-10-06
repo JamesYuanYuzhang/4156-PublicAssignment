@@ -20,6 +20,7 @@ public class UnitTest {
   @BeforeEach
   public void init() {
     gameBoard = new GameBoard();
+    gameBoard.init();
   }
   
   /**
